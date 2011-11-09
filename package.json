@@ -2,6 +2,7 @@
  "name": "mongo-survey",
  "version": "0.0.1",
  "dependencies":{
+   "ejs":"",
    "mongodb":"",
    "connect":"",
    "express":""
