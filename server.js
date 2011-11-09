@@ -13,8 +13,7 @@ run = function(client) {
   app.get('/',function(req,res){
     var surveys = new mongodb.Collection(client, 'surveys');
     surveys.find( {}, {} ).sort({id:-1}).limit(20).toArray( function(err,docs) {
-      /* FIXME handle error */
-      if ( err ) { console.log("surveys.find() error:" + err); }
+      if ( err ) { throw new Error(err); }
       res.render( 'index.ejs', { surveys: docs } );
     });
   });
@@ -25,8 +24,7 @@ run = function(client) {
     var surveys = new mongodb.Collection(client,'surveys');
     var survey = { name: req.body.name, choices: choices };
     surveys.insert( survey, function(err,objects) {
-      /* FIXME handle error */
-      if ( err ) { console.log("suveys.insert() error:" + err); }
+      if ( err ) { throw new Error(err); }
       res.redirect("/");
     });
   });
@@ -34,8 +32,7 @@ run = function(client) {
     var surveys = new mongodb.Collection(client,'surveys');
     var id = new client.bson_serializer.ObjectID(req.params.id);
     surveys.findOne( { _id: id }, function(err,doc) {
-      /* FIXME handle error */
-      if ( err ) { console.log(err); }
+      if ( err ) { throw new Error(err); }
       res.render('respond.ejs', { survey: doc } );
     });
   });
@@ -45,8 +42,7 @@ run = function(client) {
     var response = { survey_id: survey_id, choices: req.body.choices }
     var summaries = new mongodb.Collection(client,'summaries');
     responses.insert( response, function(err,objects) {
-      /* FIXME handle error */
-      if ( err ) { console.log(err); }
+      if ( err ) { throw new Error(err); }
       var count = req.body.choices.length;
       req.body.choices.forEach( function(choice) {
         summaries.update( { survey_id: survey_id, choice: choice }, {$inc: { 'responses' : 1 }}, { upsert: true }, function() {
@@ -63,8 +59,7 @@ run = function(client) {
     var id = new client.bson_serializer.ObjectID(req.params.id);
     surveys.findOne( { _id: id }, function(err,survey) {
       summaries.find( { survey_id: id }).toArray(function(err,docs) {
-        /* FIXME handle error */
-        if ( err ) { console.log(err); }
+        if ( err ) { throw new Error(err); }
         var total_responses = 0;
         docs.forEach( function(e) { 
           total_responses += e.responses; 
@@ -78,6 +73,11 @@ run = function(client) {
       });
     });
   });
+
+  app.error(function(err,req,res,next){
+    res.render('error.ejs', { err: err });
+  });
+
   var port = process.env.VCAP_APP_PORT || process.env.PORT || 8001;
   app.listen(port);
   console.log('Server listing on port '+ port);
@@ -88,8 +88,6 @@ if ( process.env.VCAP_SERVICES ) {
   var service_type = "mongodb-1.8";
   var json = JSON.parse(process.env.VCAP_SERVICES);
   var credentials = json[service_type][0]["credentials"];
-  console.log("Credentials:");
-  console.log(credentials);
   var server = new mongodb.Server( credentials["host"], credentials["port"]);
   new mongodb.Db( credentials["db"], server, {} ).open( function(err,client) {
     client.authenticate( credentials["username"], credentials["password"], function(err,replies) { 
