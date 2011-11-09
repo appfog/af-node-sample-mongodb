@@ -1,0 +1,35 @@
+== Demo app for node mongodb
+
+== Getting started
+
+== Run locally
+
+Assumes you already have node, npm, and mongodb installed
+
+npm install
+
+== Deploy to Appfog
+
+af push <appname>
+af create-service mongodb <appname>
+
+== Description of Contents
+
+These are the files for the original demo app:
+
+server.js
+package.json
+views
+  errors.ejs 
+  index.ejs
+  layout.ejs
+  respond.ejs
+  results.ejs
+public
+  javascripts
+    jquery.js
+    highcharts.js
+public
+  stylesheets
+    site.css
+node_modules
