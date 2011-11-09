@@ -1,6 +1,4 @@
-<h1>Index for mongo_survey</h1>
-
-<h1>Surveys</h1>
+<h2>Surveys</h2>
 <ul>
 <% surveys.forEach( function(survey) { %>
   <li><a href="/respond/<%=survey._id%>"><%= survey.name %></a></li>
@@ -11,5 +9,5 @@
 <form action="/survey" method="post">
   <p><input type="text" placeholder="Name" name="name" id="name" size="80"></p>
   <p><input type="text" placeholder="Choices" name="choices" id="choices" size="80"></p>
-  <p><input type="submit" value="Create Survey"></p>
+  <p><input type="submit" value="Create Survey" class="button"></p>
 </form>

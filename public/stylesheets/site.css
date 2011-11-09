@@ -1,3 +1,61 @@
 body {
+  background: none repeat scroll 0 0  rgb(239,219,144);
+  margin: 0;
+  padding: 0;
   font-family: sans-serif;
+  color: rgb(166,109,0);
+}
+#content_wrapper {
+  border-left: 1px solid rgb(166,109,0);
+  border-right: 1px solid rgb(166,109,0);
+  margin: 40px auto;
+  width: 850px;
+  min-height: 500px;
+  box-shadow: 0 0 15px rgb(166,109,0);
+  background: white;
+}
+#title {
+  width: 800px;
+  font-size: 40px;
+  background-color: rgb(166,109,0);
+  color: white;
+  padding: 25px;
+}
+#content {
+  width: 800px;
+  padding: 25px;
+}
+
+ul {
+  list-style-type:none;
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  text-decoration: none;
+  color: rgb(166,109,0);
+}
+a:hover {
+  text-decoration: underline;
+  color: rgb(166,109,0);
+}
+a:visited {
+  color: rgb(166,109,0);
+}
+input[type="checkbox"],
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  font-size: 16px;
+  font-face: sans-serif;
+  padding: 5px;
+  background-color: white;
+}
+.button {
+  background-color: rgb(166,109,0);
+  color: white;
+  font-size: 24px;
+  padding: 10px 20px 10px 20px;
+  border: 0;
 }
