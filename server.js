@@ -40,40 +40,40 @@ run = function(client) {
     });
   });
   app.post('/respond/:id',function(req,res){
-    var responses = new mongodb.Collection(client,'responses');
     var survey_id = new client.bson_serializer.ObjectID(req.params.id);
+    var responses = new mongodb.Collection(client,'responses');
     var response = { survey_id: survey_id, choices: req.body.choices }
+    var summaries = new mongodb.Collection(client,'summaries');
     responses.insert( response, function(err,objects) {
       /* FIXME handle error */
       if ( err ) { console.log(err); }
-      res.redirect("/results/" + req.params.id );  
+      var count = req.body.choices.length;
+      req.body.choices.forEach( function(choice) {
+        summaries.update( { survey_id: survey_id, choice: choice }, {$inc: { 'responses' : 1 }}, { upsert: true }, function() {
+          if ( --count == 0 ) {
+            res.redirect("/results/" + req.params.id );  
+          }
+        });
+      });
     });
   });
   app.get('/results/:id',function(req,res){
     var surveys = new mongodb.Collection(client,'surveys');
-    var responses = new mongodb.Collection(client,'responses');
+    var summaries = new mongodb.Collection(client,'summaries');
     var id = new client.bson_serializer.ObjectID(req.params.id);
     surveys.findOne( { _id: id }, function(err,survey) {
-      responses.find( { survey_id: id }).toArray(function(err,docs) {
+      summaries.find( { survey_id: id }).toArray(function(err,docs) {
         /* FIXME handle error */
         if ( err ) { console.log(err); }
         var total_responses = 0;
-        var response_summary = {};
-        docs.forEach(function(response){
-          response.choices.forEach(function(e){
-            if ( response_summary[e] ) {
-              response_summary[e] += 1;
-            } else {
-              response_summary[e] = 1;
-            }
-              total_responses += 1;
-          });
+        docs.forEach( function(e) { 
+          total_responses += e.responses; 
         });
         var percentages = {};
-        for( r in response_summary ) {
-           var n = Math.round( 100.0 * response_summary[r] / total_responses );
-           percentages[r] = n;
-        }
+        docs.forEach( function(e) {
+           var n = Math.round( 100.0 * e.responses / total_responses );
+           percentages[e.choice] = n;
+        });
         res.render('results.ejs', { id: req.params.id, survey: survey, results: docs, percentages: percentages } );
       });
     });
