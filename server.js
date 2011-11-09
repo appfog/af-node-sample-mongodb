@@ -12,7 +12,7 @@ run = function(client) {
   
   app.get('/',function(req,res){
     var surveys = new mongodb.Collection(client, 'surveys');
-    surveys.find( {}, {} ).sort({id:-1}).limit(20).toArray( function(err,docs) {
+    surveys.find( {}, {} ).sort({_id:-1}).limit(20).toArray( function(err,docs) {
       if ( err ) { throw new Error(err); }
       res.render( 'index.ejs', { surveys: docs } );
     });
