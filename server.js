@@ -19,8 +19,11 @@ run = function(client) {
     });
   });
   app.post('/survey',function(req,res){
+    /* strip leading and trailing spaces, and collapse multiple spaces
+       and then break into an array */
+    choices = req.body.choices.replace(/(^\s*)|(\s*$)/g,'').replace(/\s{2,}/g,' ').split(' ');
     var surveys = new mongodb.Collection(client,'surveys');
-    var survey = { name: req.body.name, choices: req.body.choices.split(' ') };
+    var survey = { name: req.body.name, choices: choices };
     surveys.insert( survey, function(err,objects) {
       /* FIXME handle error */
       if ( err ) { console.log("suveys.insert() error:" + err); }
