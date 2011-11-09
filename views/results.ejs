@@ -1,0 +1,51 @@
+<script>
+var chart;
+$(document).ready(function() {
+   chart = new Highcharts.Chart({
+      chart: {
+         renderTo: 'container',
+         plotBackgroundColor: null,
+         plotBorderWidth: null,
+         plotShadow: false
+      },
+      title: {
+         text: '<%= survey.name %>'
+      },
+      tooltip: {
+         formatter: function() {
+            return '<b>'+ this.point.name +'</b>: '+ Math.round(this.percentage) +' %';
+         }
+      },
+      plotOptions: {
+         pie: {
+            allowPointSelect: true,
+            cursor: 'pointer',
+            dataLabels: {
+               enabled: true,
+               color:  '#000000',
+               connectorColor:  '#000000',
+               formatter: function() {
+                  return '<b>'+ this.point.name +'</b>: '+ Math.round(this.percentage) +' %';
+               }
+            }
+         }
+      },
+       series: [{
+         type: 'pie',
+         name: 'Response share',
+         data: [
+	    <% for ( lang in percentages ) { %>
+                [ '<%= lang %>', <%= percentages[lang] %> ],
+            <% }; %>
+         ]
+      }]
+   });
+});
+</script>
+
+<h1>Results</h1>
+<div id="container"></div>
+<p>
+<a href="/">Home</a> |
+<a href="/respond/<%= id %>">Take the Survey Again</a>
+</p>

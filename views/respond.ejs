@@ -1,0 +1,11 @@
+<h1><%= survey.name %></h1>
+
+<form action="/respond/<%= survey._id %>" method="POST">
+<% survey.choices.forEach(function(choice){ %>
+  <div>
+    <input type="checkbox" name="choices[]" value="<%=choice%>" id="<%= choice %>">
+    <label for="<%=choice%>"><%= choice %></label>
+  </div>
+<% }); %>
+<input type="submit" value="Submit Your Response">
+</form>
