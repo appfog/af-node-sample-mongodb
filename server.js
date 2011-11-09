@@ -91,16 +91,13 @@ if ( process.env.VCAP_SERVICES ) {
   var server = new mongodb.Server( credentials["host"], credentials["port"]);
   new mongodb.Db( credentials["db"], server, {} ).open( function(err,client) {
     client.authenticate( credentials["username"], credentials["password"], function(err,replies) { 
-      console.log("mongodb authenticated");
       run(client);
     });
   });
 } else {
-  console.log("Connecting to mongodb on localhost");
   var server = new mongodb.Server("127.0.0.1",27017,{});
   new mongodb.Db( "mongo_survey", server, {} ).open( function(err,client) {
     if ( err ) { throw err; }
-    console.log("mongodb opened");
     run(client);
   });
 }
