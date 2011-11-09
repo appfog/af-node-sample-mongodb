@@ -33,10 +33,10 @@ run = function(client) {
   app.get('/respond/:id',function(req,res){
     var surveys = new mongodb.Collection(client,'surveys');
     var id = new client.bson_serializer.ObjectID(req.params.id);
-    surveys.find( { _id: id }  ).toArray(function(err,docs) {
+    surveys.findOne( { _id: id }, function(err,doc) {
       /* FIXME handle error */
       if ( err ) { console.log(err); }
-      res.render('respond.ejs', { survey: docs[0] } );
+      res.render('respond.ejs', { survey: doc } );
     });
   });
   app.post('/respond/:id',function(req,res){
@@ -53,8 +53,7 @@ run = function(client) {
     var surveys = new mongodb.Collection(client,'surveys');
     var responses = new mongodb.Collection(client,'responses');
     var id = new client.bson_serializer.ObjectID(req.params.id);
-    surveys.find( { _id: id }).toArray(function(err,docs) {
-      var survey = docs[0];
+    surveys.findOne( { _id: id }, function(err,survey) {
       responses.find( { survey_id: id }).toArray(function(err,docs) {
         /* FIXME handle error */
         if ( err ) { console.log(err); }
