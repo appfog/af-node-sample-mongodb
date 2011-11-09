@@ -14,6 +14,7 @@ run = function(client) {
     var surveys = new mongodb.Collection(client, 'surveys');
     surveys.find( {}, {} ).sort({id:-1}).limit(20).toArray( function(err,docs) {
       /* FIXME handle error */
+      if ( err ) { console.log("surveys.find() error:" + err); }
       res.render( 'index.ejs', { surveys: docs } );
     });
   });
@@ -22,6 +23,7 @@ run = function(client) {
     var survey = { name: req.body.name, choices: req.body.choices.split(' ') };
     surveys.insert( survey, function(err,objects) {
       /* FIXME handle error */
+      if ( err ) { console.log("suveys.insert() error:" + err); }
       res.redirect("/");
     });
   });
@@ -30,6 +32,7 @@ run = function(client) {
     var id = new client.bson_serializer.ObjectID(req.params.id);
     surveys.find( { _id: id }  ).toArray(function(err,docs) {
       /* FIXME handle error */
+      if ( err ) { console.log(err); }
       res.render('respond.ejs', { survey: docs[0] } );
     });
   });
@@ -39,6 +42,7 @@ run = function(client) {
     var response = { survey_id: survey_id, choices: req.body.choices }
     responses.insert( response, function(err,objects) {
       /* FIXME handle error */
+      if ( err ) { console.log(err); }
       res.redirect("/results/" + req.params.id );  
     });
   });
@@ -50,6 +54,7 @@ run = function(client) {
       var survey = docs[0];
       responses.find( { survey_id: id }).toArray(function(err,docs) {
         /* FIXME handle error */
+        if ( err ) { console.log(err); }
         var total_responses = 0;
         var response_summary = {};
         docs.forEach(function(response){
@@ -77,11 +82,28 @@ run = function(client) {
 
 };
 
-var server = new mongodb.Server("127.0.0.1", 27017, {})
-db = new mongodb.Db( 'mongo_survey', server, {} );
-db.open( function(err,client) {
-  if ( err ) { throw err; }
-  run(client);
-});
+if ( process.env.VCAP_SERVICES ) {
+  var service_type = "mongodb-1.8";
+  var json = JSON.parse(process.env.VCAP_SERVICES);
+  var credentials = json[service_type][0]["credentials"];
+  console.log("Credentials:");
+  console.log(credentials);
+  var server = new mongodb.Server( credentials["host"], credentials["port"]);
+  new mongodb.Db( credentials["db"], server, {} ).open( function(err,client) {
+    client.authenticate( credentials["username"], credentials["password"], function(err,replies) { 
+      console.log("mongodb authenticated");
+      run(client);
+    });
+  });
+} else {
+  console.log("Connecting to mongodb on localhost");
+  var server = new mongodb.Server("127.0.0.1",27017,{});
+  new mongodb.Db( "mongo_survey", server, {} ).open( function(err,client) {
+    if ( err ) { throw err; }
+    console.log("mongodb opened");
+    run(client);
+  });
+}
+
 
 
