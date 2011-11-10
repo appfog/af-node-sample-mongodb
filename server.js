@@ -23,7 +23,7 @@ run = function(client) {
     choices = req.body.choices.replace(/(^\s*)|(\s*$)/g,'').replace(/\s{2,}/g,' ').split(' ');
     var surveys = new mongodb.Collection(client,'surveys');
     var survey = { name: req.body.name, choices: choices };
-    surveys.insert( survey, function(err,objects) {
+    surveys.insert( survey, { safe: true }, function(err,objects) {
       if ( err ) { throw new Error(err); }
       res.redirect("/");
     });
