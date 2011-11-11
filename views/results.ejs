@@ -13,7 +13,7 @@ $(document).ready(function() {
       },
       tooltip: {
          formatter: function() {
-            return '<b>'+ this.point.name +'</b>: '+ Math.round(this.percentage) +' %';
+            return '<b>'+ this.point.name +'</b>: '+ this.point.y;
          }
       },
       plotOptions: {
@@ -34,8 +34,8 @@ $(document).ready(function() {
          type: 'pie',
          name: 'Response share',
          data: [
-	    <% for ( lang in percentages ) { %>
-                [ '<%= lang %>', <%= percentages[lang] %> ],
+	    <% for ( var i=0, l=responses.length; i<l; i++ ) { %>
+                [ '<%= responses[i].choice %>', <%= responses[i].responses %> ],
             <% }; %>
          ]
       }]

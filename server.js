@@ -57,12 +57,7 @@ run = function(client) {
     surveys.findOne( { _id: id }, function(err,survey) {
       summaries.find( { survey_id: id }).toArray(function(err,docs) {
         if ( err ) { throw new Error(err); }
-        var total_responses = docs.reduce(function(sum,e) { return sum + e.responses }, 0 );
-        var percentages = docs.reduce(function(pct,e) {
-           pct[e.choice] = Math.round( 100.0 * e.responses / total_responses );
-           return pct;
-           }, {} );
-        res.render('results.ejs', { id: req.params.id, survey: survey, results: docs, percentages: percentages } );
+        res.render('results.ejs', { id: req.params.id, survey: survey, responses: docs } );
       });
     });
   });
