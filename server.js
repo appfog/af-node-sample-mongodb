@@ -10,8 +10,11 @@ run = function(client) {
   app.use( express.cookieParser() );
   app.use( app.router );
   
+  var surveys = new mongodb.Collection(client, 'surveys');
+  var responses = new mongodb.Collection(client,'responses');
+  var summaries = new mongodb.Collection(client,'summaries');
+
   app.get('/',function(req,res){
-    var surveys = new mongodb.Collection(client, 'surveys');
     surveys.find( {}, {} ).sort({_id:-1}).limit(20).toArray( function(err,docs) {
       if ( err ) { throw new Error(err); }
       res.render( 'index.ejs', { surveys: docs } );
@@ -21,7 +24,6 @@ run = function(client) {
     /* strip leading and trailing spaces, and collapse multiple spaces
        and then break into an array */
     choices = req.body.choices.replace(/(^\s*)|(\s*$)/g,'').replace(/\s{2,}/g,' ').split(' ');
-    var surveys = new mongodb.Collection(client,'surveys');
     var survey = { name: req.body.name, choices: choices };
     surveys.insert( survey, { safe: true }, function(err,objects) {
       if ( err ) { throw new Error(err); }
@@ -29,7 +31,6 @@ run = function(client) {
     });
   });
   app.get('/respond/:id',function(req,res){
-    var surveys = new mongodb.Collection(client,'surveys');
     var id = new client.bson_serializer.ObjectID(req.params.id);
     surveys.findOne( { _id: id }, function(err,doc) {
       if ( err ) { throw new Error(err); }
@@ -38,9 +39,7 @@ run = function(client) {
   });
   app.post('/respond/:id',function(req,res){
     var survey_id = new client.bson_serializer.ObjectID(req.params.id);
-    var responses = new mongodb.Collection(client,'responses');
     var response = { survey_id: survey_id, choices: req.body.choices }
-    var summaries = new mongodb.Collection(client,'summaries');
     responses.insert( response, function(err,objects) {
       if ( err ) { throw new Error(err); }
       var count = req.body.choices.length;
@@ -54,8 +53,6 @@ run = function(client) {
     });
   });
   app.get('/results/:id',function(req,res){
-    var surveys = new mongodb.Collection(client,'surveys');
-    var summaries = new mongodb.Collection(client,'summaries');
     var id = new client.bson_serializer.ObjectID(req.params.id);
     surveys.findOne( { _id: id }, function(err,survey) {
       summaries.find( { survey_id: id }).toArray(function(err,docs) {
