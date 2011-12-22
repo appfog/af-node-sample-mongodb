@@ -17,6 +17,7 @@ run = function(client) {
   app.get('/',function(req,res){
     surveys.find( {}, {} ).sort({_id:-1}).limit(20).toArray( function(err,docs) {
       if ( err ) { throw new Error(err); }
+      res.header('Cache-Control','private');
       res.render( 'index.ejs', { surveys: docs } );
     });
   });
@@ -44,7 +45,7 @@ run = function(client) {
       if ( err ) { throw new Error(err); }
       var count = req.body.choices.length;
       req.body.choices.forEach( function(choice) {
-        summaries.update( { survey_id: survey_id, choice: choice }, {$inc: { 'responses' : 1 }}, { upsert: true }, function() {
+        summaries.update( { survey_id: survey_id, choice: choice }, {$inc: { 'responses' : 1 }}, { safe: true, upsert: true }, function() {
           if ( --count == 0 ) {
             res.redirect("/results/" + req.params.id );  
           }
@@ -57,6 +58,7 @@ run = function(client) {
     surveys.findOne( { _id: id }, function(err,survey) {
       summaries.find( { survey_id: id }).toArray(function(err,docs) {
         if ( err ) { throw new Error(err); }
+        res.header('Cache-Control','private');
         res.render('results.ejs', { id: req.params.id, survey: survey, responses: docs } );
       });
     });
